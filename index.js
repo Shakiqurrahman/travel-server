@@ -21,11 +21,13 @@ const user = require("./controllers/userController");
 const order = require("./controllers/orderController");
 const review = require("./controllers/reviewController");
 const payment = require("./controllers/paymentController");
+const sendEmail = require("./controllers/sendMailcontroller");
 
 app.use("/api", user);
 app.use("/api", order);
 app.use("/api", review);
 app.use("/api", payment);
+app.use("/api", sendEmail);
 
 // testing routes
 app.use("/", (req, res) => {
