@@ -1,32 +1,34 @@
-const nodemailer = require("nodemailer");
-require('dotenv').config();
+const express = require("express");
+const sendEmailWithNodeMailer = require("../utils/email");
+const { isAuthenticated } = require("../middlewares/auth");
+const router = express.Router();
 
-const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    auth: {
-        // TODO: replace `user` and `pass` values from <https://forwardemail.net>
-        user: process.env.SMTP_USERNAME,
-        pass: process.env.SMTP_PASSWORD,
-    },
+router.post("/send-email", isAuthenticated, async (req, res, next) => {
+    try {
+        const data = req.body;
+
+        const emailData = {
+            email: data.userInfo.email,
+            subject: 'Order Confirmation Email',
+            html: `
+                <h2>Hello ${data.userInfo.name} !</h2>
+                <h3>Your Destination : ${data.serviceInfo.title}</h3>
+                <p>Journey Date : ${data.orderInfo.date}</p>
+                <p>Number of Person : ${data.orderInfo.numberOfPeople}</p>
+                <p>You have paid ${data.serviceInfo.price} usd  and Your transaction id : ${data.paymentInfo.transactionID}</p>
+                <h3>Happy Journey !</h3>
+                `
+        }
+
+        await sendEmailWithNodeMailer(emailData)
+        res.status(201).json({
+            message:"Email has been sent."
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Something went wrong",
+        });
+    }
 });
 
-
-const sendEmailWithNodeMailer = async (emailData) => {
-    try {
-        const mailOptions = {
-            from: process.env.SMTP_USERNAME, // sender address
-            to: emailData.email, // list of receivers
-            subject: emailData.subject, // Subject line
-            html: emailData.html, // html body
-        };
-        const info = await transporter.sendMail(mailOptions);
-        console.log("Message sent: %s", info.response);
-    } catch (error) {
-        console.error("Error is occured while email is sent.", error);
-        throw error;
-    }
-}
-
-module.exports = sendEmailWithNodeMailer;
+module.exports = router

@@ -6,6 +6,11 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET);
 router.post('/create-payment-intent', async (req, res) => {
     try {
       const { amount, email } = req.body;
+<<<<<<< HEAD
+=======
+      // console.log(amount)
+      // console.log(email)
+>>>>>>> d75f4910f4fb84e3b0249919dbdaecfbeaf24cb3
   
       const customer = await stripe.customers.create({
         email: email,
